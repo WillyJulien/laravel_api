@@ -7,7 +7,7 @@ return [
     | Authentication Defaults
     |--------------------------------------------------------------------------
     |
-    | This option controls the default authentication "guard" and password
+    | This option controls the default authentication 'guard' and password
     | reset options for your application. You may change these defaults
     | as required, but they're a perfect start for most applications.
     |
@@ -31,14 +31,21 @@ return [
     | users are actually retrieved out of your database or other storage
     | mechanisms used by this application to persist your user's data.
     |
-    | Supported: "session"
+    | Supported: 'session'
     |
     */
+
+    // We define sanctum as the authentication manager for our API. The model to be authenticated is administrators.
 
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'administrators',
+        ],
+
+        'api' => [
+            'driver' => 'sanctum',
+            'provider' => 'administrators',
         ],
     ],
 
@@ -59,16 +66,12 @@ return [
     |
     */
 
+    // we define our provider, administrator
     'providers' => [
-        'users' => [
+        'administrators' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model' => App\Models\Administrator::class,
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
     ],
 
     /*
