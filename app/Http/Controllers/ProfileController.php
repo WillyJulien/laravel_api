@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Profile;
 use Illuminate\Http\Request;
+use App\Http\Requests\ProfileRequest;
 use App\Enums\ProfileStatus;
 use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller {
     /**
@@ -28,12 +31,12 @@ class ProfileController extends Controller {
                 // Retrieve all active profiles
                 $profiles = Profile::where( 'status', ProfileStatus::Active->value )->get();
 
-                // If the user is authenticated, return all fields, including 'status'
+                // If the user is authenticated, return all fields
                 return response()->json( $profiles );
             }
         }
 
-        // Retrieve all active profiles
+        // Else Retrieve all active profiles
         $profiles = Profile::where( 'status', ProfileStatus::Active->value )->get();
 
         // Exclude the 'status' field for unauthenticated users
@@ -45,10 +48,10 @@ class ProfileController extends Controller {
     * Store a newly created resource in storage.
     */
 
-    public function store( Request $request ) {
+    public function store( ProfileRequest $request ) {
 
         try {
-            // Create a new profile with the validated data
+            // Create a new profile with after the ProfileRequest
             $profile = Profile::create( [
                 'name' => $request->input( 'name' ),
                 'firstname' => $request->input( 'firstname' ),
@@ -79,10 +82,11 @@ class ProfileController extends Controller {
     * Update the specified resource in storage.
     */
 
-    public function update( Request $request, Profile $profile ) {
+    public function update( ProfileRequest $request, Profile $profile ) {
 
         // Update specified fields
         $profile->update( $request->only( [ 'name', 'firstname', 'image', 'status' ] ) );
+        // image is nullable
 
         return response()->json( [ 'message' => 'Profile updated successfully', 'profile' => $profile ], 200 );
 
@@ -108,5 +112,4 @@ class ProfileController extends Controller {
         }
 
     }
-
 }
