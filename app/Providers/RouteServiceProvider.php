@@ -24,10 +24,15 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // 60 requests maximum per minute after logging in.
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
-
+        // 5 requests per minute maximum for login.perform and login.perform pages
+        RateLimiter::for('public', function (Request $request) {
+            return Limit::perMinute(5)->by($request->user()?->id ?: $request->ip());
+        });
+        
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')
