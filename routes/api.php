@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicSiteDataController;
 use App\Http\Controllers\AdministratorController;
 
 /*
@@ -23,6 +24,8 @@ Route::middleware(['throttle:public'])->group(function () {
     Route::post('admin/login', [AdministratorController::class, 'login'])->name('login.perform');
     // The route is public so that any user can see the list of active profiles.
     Route::get('profile', [ProfileController::class, 'index'])->name('profiles.index');
+    Route::get('publicSiteData', [PublicSiteDataController::class, 'index']);
+    Route::get('/publicSiteData/{slug}', [PublicSiteDataController::class, 'show']);
 });
 
 

@@ -6,16 +6,16 @@ use App\DTOs\PublicSiteDataDTO;
 
 class PublicSiteDataService
 {
-    protected $data;
+    protected $public_datas;
 
     // Utilisation d'un constructeur pour initialiser les données
     public function __construct()
     {
         // Récupérer les données depuis les variables d'environnement
-        $this->data = [
-            'chiffre_affaire' => (int) env('PUBLIC_SITE_CHIFFRE_AFFAIRE', 0),
-            'nombre_utilisateurs' => (int) env('PUBLIC_SITE_NOMBRE_UTILISATEURS', 0),
-            'nombre_projets' => (int) env('PUBLIC_SITE_NOMBRE_PROJETS', 0),
+        $this->public_datas = [
+            'chiffre-affaire' => public_data('chiffre-affaire'),
+            'nombre-utilisateurs' => public_data('nombre-utilisateurs'),
+            'nombre-projets' => public_data('nombre-projets'),
         ];
     }
 
@@ -25,6 +25,7 @@ class PublicSiteDataService
     public function index(): PublicSiteDataDTO
     {
         // Retourner les données encapsulées dans un DTO
-        return new PublicSiteDataDTO($this->data);
+        return new PublicSiteDataDTO($this->public_datas);
     }
+
 }

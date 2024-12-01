@@ -16,6 +16,7 @@ class PublicSiteDataController extends Controller {
     public function index()
  {
         $data = $this->publicSiteDataService->index();
+
         return response()->json( $data );
     }
 
