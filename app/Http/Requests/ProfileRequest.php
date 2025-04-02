@@ -6,12 +6,14 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Enums\ProfileStatus;
 
-class ProfileRequest extends FormRequest {
+class ProfileRequest extends FormRequest
+{
     /**
     * Determine if the user is authorized to make this request.
     */
 
-    public function authorize(): bool {
+    public function authorize(): bool
+    {
         return true;
     }
 
@@ -21,12 +23,13 @@ class ProfileRequest extends FormRequest {
     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
     */
 
-    public function rules(): array {
+    public function rules(): array
+    {
         return [
             'name' => 'required|string|max:255',
             'firstname' => 'required|string|max:255',
             'image' => 'nullable|string',
-            'status' => [ 'required', Rule::enum( ProfileStatus::class ) ],
+            'status' => [ 'required', Rule::enum(ProfileStatus::class) ],
         ];
     }
 
