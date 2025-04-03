@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_DATABASE: testdb
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --host=localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configuration de PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer, php-cs-fixer, phpstan, phpcs, phpdoc
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v3
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Installation des dépendances
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Créer le fichier .env à partir de .env.example
+        run: |
+          cp .env.example .env
+          # Remplacer les variables de connexion à la base de données dans le fichier .env
+          sed -i 's/DB_HOST=127.0.0.1/DB_HOST=127.0.0.1/' .env
+          sed -i 's/DB_PORT=3306/DB_PORT=3306/' .env
+          sed -i 's/DB_DATABASE=laravel/DB_DATABASE=testdb/' .env
+          sed -i 's/DB_USERNAME=root/DB_USERNAME=user/' .env
+          sed -i 's/DB_PASSWORD=/DB_PASSWORD=password/' .env
+          # Générer la clé de l'application
+          php artisan key:generate
+
+      - name: Attendre que MySQL soit prêt
+        run: |
+          echo "Waiting for MySQL to be ready..."
+          for i in {1..15}; do
+            if mysql -h 127.0.0.1 -u user -ppassword -e "SELECT 1"; then
+              echo "MySQL is ready"
+              break
+            fi
+            echo "Waiting for MySQL... Attempt $i"
+            sleep 5
+          done
+
+      - name: Créer la base de données (si nécessaire)
+        run: |
+          mysql -h 127.0.0.1 -u user -ppassword -e "CREATE DATABASE IF NOT EXISTS testdb"
+
+      - name: Exécuter les migrations
+        run: php artisan migrate --force
+
+      - name: Exécuter les seeders
+        run: php artisan db:seed --force
+
+      - name: Exécuter la vérification du code (csfix)
+        run: make csfix
+
+      - name: Exécuter l'analyse statique (phpstan)
+        run: make phpstan
+
+      - name: Exécuter les tests (PHPUnit)
+        run: make test
