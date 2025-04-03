@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         // Call seeder Profile
         $this->call([
             ProfileSeeder::class,
+            AdministratorSeeder::class,
         ]);
     }
 }
