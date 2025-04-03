@@ -20,7 +20,7 @@ class ProfileTest extends TestCase
         // Perform a POST request to '/api/admin/login' with the administrator's credentials.
         $response = $this->post('/api/admin/login', [
             'email' => $admin->email,
-            'password' => 'password123',
+            'password' => 'password',
         ]);
 
         // Assert that the response status is 200 (OK).
