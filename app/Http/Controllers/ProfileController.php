@@ -2,118 +2,77 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProfileRequest;
+use App\Services\ProfileService;
+use App\DTOs\ProfileDTO;
 use App\Models\Profile;
 use Illuminate\Http\Request;
-use App\Http\Requests\ProfileRequest;
-use App\Enums\ProfileStatus;
-use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Http\JsonResponse;
 
 class ProfileController extends Controller
 {
-    /**
-    * Display a listing of the resource.
-    */
+    private ProfileService $profileService;
 
-    public function index(Request $request)
+    public function __construct(ProfileService $profileService)
     {
+        $this->profileService = $profileService;
+    }
 
-        // Extract the token from the Authorization header
-        $token = $request->bearerToken();
+    /**
+     * Liste tous les profils actifs.
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $profiles = $this->profileService->getActiveProfiles($request->bearerToken());
 
-        if ($token) {
-            // Find the token and associated user
-            $accessToken = PersonalAccessToken::findToken($token);
-
-            if ($accessToken) {
-                // Authenticate the user
-                $user = $accessToken->tokenable;
-
-                // Retrieve all active profiles
-                $profiles = Profile::where('status', ProfileStatus::Active->value)->get();
-
-                // If the user is authenticated, return all fields
-                return response()->json($profiles);
-            }
-        }
-
-        // Else Retrieve all active profiles
-        $profiles = Profile::where('status', ProfileStatus::Active->value)->get();
-
-        // Exclude the 'status' field for unauthenticated users
-        $profiles = $profiles->makeHidden('status');
         return response()->json($profiles);
     }
 
     /**
-    * Store a newly created resource in storage.
-    */
-
-    public function store(ProfileRequest $request)
+     * Crée un nouveau profil.
+     */
+    public function store(ProfileRequest $request): JsonResponse
     {
+        $profileDTO = ProfileDTO::fromRequest($request->validated());
+        $profile = $this->profileService->store($profileDTO);
 
-        try {
-            // Create a new profile with after the ProfileRequest
-            $profile = Profile::create([
-                'name' => $request->input('name'),
-                'firstname' => $request->input('firstname'),
-                'image' => $request->input('image'),
-                'status' => $request->input('status'),
-            ]);
-
-            // Return a response with the created profile and a success message
-            return response()->json([ 'message' => 'Profile created successfully', 'profile' => $profile ], 201);
-
-        } catch (\Exception $e) {
-            // In case of error, return an error response with a message
-            return response()->json([ 'message' => 'Failed to create profile', 'error' => $e->getMessage() ], 500);
-        }
-
+        return response()->json($profile, 201);
     }
 
     /**
-    * Display the specified resource.
-    */
-
-    public function show(Profile $profile)
+     * Affiche un profil spécifique.
+     */
+    public function show(Profile $profile): JsonResponse
     {
-        // return  model.
         return response()->json($profile);
     }
 
     /**
-    * Update the specified resource in storage.
-    */
-
-    public function update(ProfileRequest $request, Profile $profile)
+     * Met à jour un profil existant.
+     */
+    public function update(ProfileRequest $request, Profile $profile): JsonResponse
     {
+        $profileDTO = ProfileDTO::fromRequest($request->validated());
+        $updatedProfile = $this->profileService->update($profileDTO, $profile->id);
 
-        // Update specified fields
-        $profile->update($request->only([ 'name', 'firstname', 'image', 'status' ]));
-        // image is nullable
+        if (!$updatedProfile) {
+            return response()->json(['message' => 'Failed to update profile'], 400);
+        }
 
-        return response()->json([ 'message' => 'Profile updated successfully', 'profile' => $profile ], 200);
-
+        return response()->json($profile);
     }
 
     /**
-    * Remove the specified resource from storage.
-    */
-
-    public function destroy(Profile $profile)
+     * Supprime un profil.
+     */
+    public function destroy(Profile $profile): JsonResponse
     {
-        try {
-            // Attempt to delete the profile
-            if ($profile->delete()) {
-                // If deletion is successful, return a success message
-                return response()->json([ 'message' => 'Profile deleted successfully' ], 200);
-            } else {
-                // If deletion fails, return an error message
-                return response()->json([ 'message' => 'Failed to delete profile' ], 500);
-            }
-        } catch (\Exception $e) {
-            // In case of an unexpected error, return an error response
-            return response()->json([ 'message' => 'An error occurred while trying to delete the profile', 'error' => $e->getMessage() ], 500);
+        $deleted = $this->profileService->delete($profile->id);
+
+        if (!$deleted) {
+            return response()->json(['message' => 'Failed to delete profile'], 500);
         }
 
+        return response()->json(['message' => 'Profile deleted successfully']);
     }
 }
