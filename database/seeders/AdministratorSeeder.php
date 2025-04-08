@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Administrator;
 use Illuminate\Support\Facades\Hash;
@@ -14,10 +13,10 @@ class AdministratorSeeder extends Seeder
      */
     public function run(): void
     {
-
-        Administrator::create([
-            'name' => "John Doe",
+        Administrator::firstOrCreate([
             'email' => "john.doe@example.com",
+        ], [
+            'name' => "John Doe",
             'password' => Hash::make('password'),
         ]);
 
