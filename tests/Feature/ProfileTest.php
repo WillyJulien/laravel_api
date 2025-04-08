@@ -5,12 +5,20 @@ namespace Tests\Feature;
 use App\Models\Administrator;
 use App\Models\Profile;
 use Tests\TestCase;
+use Illuminate\Support\Facades\Artisan;
 
 class ProfileTest extends TestCase
 {
-    /**
-    * A basic feature test example.
-    */
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        // Exécuter les migrations
+        Artisan::call('migrate');
+
+        // Peupler la base de données avec les seeders nécessaires
+        Artisan::call('db:seed');
+    }
 
     private function authenticate(): string
     {

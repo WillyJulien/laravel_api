@@ -12,6 +12,16 @@ class ProfileRepository
      *
      * @return Collection
      */
+    public function getAllProfiles(): Collection
+    {
+        return Profile::all();
+    }
+
+    /**
+     * Récupérer tous les profils actifs
+     *
+     * @return Collection
+     */
     public function getActiveProfiles(): Collection
     {
         return Profile::where('status', 'active')->get();
