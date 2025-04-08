@@ -88,10 +88,9 @@ jobs:
         run: make phpstan
 
       - name: Exécuter les tests (PHPUnit)
-        run: vendor/bin/phpunit --coverage-clover=coverage.xml
-        
+        run: make test
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: WillyJulien/laravel_api
+          slug: WillyJulien/laravelapi
