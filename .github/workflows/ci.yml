@@ -88,7 +88,7 @@ jobs:
         run: make phpstan
 
       - name: Exécuter les tests (PHPUnit)
-        run: XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover coverage.xml
+        run: XDEBUG_MODE=coverage vendor/bin/phpunit --testdox --coverage-clover coverage.xml
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
