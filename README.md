@@ -1,3 +1,7 @@
+![statut](https://github.com/WillyJulien/laravel_api/actions/workflows/ci.yml/badge.svg)
+
+
+
 Convention de nommage
 Git
 Commits : mot clé suivi d’un commentaire en anglais détaillant le commit
