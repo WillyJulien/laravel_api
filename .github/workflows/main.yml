@@ -1,0 +1,43 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main  # Déploiement uniquement lors d'un push sur main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY_VPS }}
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Install dependencies
+        run: |
+          composer install --no-interaction --prefer-dist
+
+      - name: Deploy to Production (main branch)
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@91.134.90.115 << 'EOF'
+            cd /path/to/your/laravel/app
+            git pull origin main
+            composer install --no-interaction --prefer-dist
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            # Reload Nginx to take changes into account
+            sudo systemctl reload nginx
+          EOF
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY_VPS  }}
