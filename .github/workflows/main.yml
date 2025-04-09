@@ -20,7 +20,7 @@ jobs:
       - name: Deploy to VPS
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@91.134.90.115 << 'EOF'
-            cd /var/www/mon-app || exit
+            cd /var/www/app || exit
             git pull origin main || exit
             composer install --no-dev --optimize-autoloader || exit
             php artisan migrate --force || exit
