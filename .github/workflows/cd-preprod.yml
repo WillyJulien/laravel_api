@@ -25,9 +25,11 @@ jobs:
 
       - name: Deploy to VPS
         run: |
+          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+          echo "Deploying branch: ${BRANCH_NAME}"
           ssh -o StrictHostKeyChecking=no ubuntu@91.134.90.115 << EOF
             cd /var/www/app/laravel_api_preprod || exit
-            git pull origin ${GITHUB_REF##*/} || exit
+            git pull origin ${BRANCH_NAME} || exit
             composer install --no-dev --optimize-autoloader || exit
             php artisan migrate --force || exit
             php artisan config:cache || exit
