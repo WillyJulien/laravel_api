@@ -8,7 +8,7 @@ on:
 
 jobs:
   run-tests:
-    uses: ./github/workflows/ci.yml
+    uses: .WillyJulien/laravel_api/.github/workflows/ci.yml@develop
   deploy:
     needs: run-tests
     if: success()
