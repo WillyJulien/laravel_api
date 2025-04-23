@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'release/*'  # ou la branche de ton choix pour le déploiement
+  workflow_dispatch:
 
 jobs:
   run-tests:
